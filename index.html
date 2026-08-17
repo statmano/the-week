@@ -3,19 +3,29 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/png" href="icons/week-icon.png">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
     <title>The Week — Weekly Focus PWA</title>
   </head>
   <body>
+    <div id="splashScreen" class="splash-screen" aria-live="polite">
+      <div class="splash-card">
+        <p class="splash-kicker">This week starts now</p>
+        <h2>Small steps build powerful momentum.</h2>
+        <p>Progress is built one win at a time. Keep showing up, and your goals will start moving.</p>
+      </div>
+    </div>
+
     <main class="app">
       <header>
-        <h1>The Week</h1>
-        <p class="tag">Pick 3–5 achievable goals each week. Small wins build momentum.</p>
+        <h1>The Week App</h1>
+        <p class="tag">Pick 3–5 achievable goals each week. Aim for at least one in Work, Home, and Play.</p>
       </header>
 
       <section id="prompt" class="card hidden">
         <h2>This week's goals</h2>
+        <p class="goal-guidance">Start with one goal in each area: Work, Home, and Play. You can always add more if you want.</p>
         <form id="goalsForm">
           <div id="goalsContainer"></div>
           <div class="form-row">

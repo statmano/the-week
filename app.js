@@ -3,6 +3,7 @@
   const MAX_GOALS = 5
   const MIN_GOALS = 3
   const LS_KEY = 'tw:weeks'
+  const GOAL_CATEGORIES = ['Work', 'Home', 'Play']
 
   function weekStartISO(d=new Date()){
     const date = new Date(d)
@@ -36,27 +37,42 @@
     }
   }
 
+  function getDefaultCategory(index = 0){
+    return GOAL_CATEGORIES[index % GOAL_CATEGORIES.length]
+  }
+
+  function getMissingCategories(goals){
+    const counts = { Work: 0, Home: 0, Play: 0 }
+    goals.forEach(goal => {
+      const category = GOAL_CATEGORIES.includes(goal.category) ? goal.category : 'Work'
+      counts[category] += 1
+    })
+    return GOAL_CATEGORIES.filter(category => counts[category] === 0)
+  }
+
   function renderGoalsForm(){
     goalsContainer.innerHTML = ''
     const current = (weeks[thisWeek] && weeks[thisWeek].goals) || []
     const count = Math.max(current.length, MIN_GOALS)
     for(let i=0;i<count;i++){
-      const g = current[i] || {title:'',type:'boolean',target:1,progress:0}
+      const g = current[i] || {title:'',type:'boolean',target:1,progress:0,category:getDefaultCategory(i)}
       const row = document.createElement('div')
       row.className = 'goal-row'
       row.innerHTML = `
         <input type="text" name="title" placeholder="Goal title" value="${escapeHtml(g.title)}" />
+        <select name="category" aria-label="Goal category">
+          ${GOAL_CATEGORIES.map(category => `<option value="${category}" ${category === (g.category || 'Work') ? 'selected' : ''}>${category}</option>`).join('')}
+        </select>
         <select name="type"><option value="boolean">Yes/No</option><option value="number">Number</option></select>
         <input type="number" name="target" min="1" value="${g.target}" style="width:72px;" />
         <button type="button" class="remove">Remove</button>
       `
-      const sel = row.querySelector('select')
+      const typeSelect = row.querySelector('[name="type"]')
       const targetInput = row.querySelector('input[name="target"]')
-      sel.value = g.type
-      // hide target for boolean type
-      if(sel.value === 'boolean') targetInput.style.display = 'none'
-      sel.addEventListener('change', ()=>{
-        targetInput.style.display = sel.value === 'number' ? '' : 'none'
+      typeSelect.value = g.type
+      if(typeSelect.value === 'boolean') targetInput.style.display = 'none'
+      typeSelect.addEventListener('change', ()=>{
+        targetInput.style.display = typeSelect.value === 'number' ? '' : 'none'
       })
       row.querySelector('.remove').addEventListener('click',()=>{ row.remove() })
       goalsContainer.appendChild(row)
@@ -68,21 +84,25 @@
   addGoalBtn.addEventListener('click',()=>{
     const existing = goalsContainer.querySelectorAll('.goal-row').length
     if(existing>=MAX_GOALS) return alert('Max goals reached')
+    const usedCategories = Array.from(goalsContainer.querySelectorAll('[name="category"]')).map(el => el.value)
+    const nextCategory = GOAL_CATEGORIES.find(category => !usedCategories.includes(category)) || 'Work'
     const row = document.createElement('div')
     row.className='goal-row'
     row.innerHTML = `
       <input type="text" name="title" placeholder="Goal title" />
+      <select name="category" aria-label="Goal category">
+        ${GOAL_CATEGORIES.map(category => `<option value="${category}" ${category === nextCategory ? 'selected' : ''}>${category}</option>`).join('')}
+      </select>
       <select name="type"><option value="boolean">Yes/No</option><option value="number">Number</option></select>
       <input type="number" name="target" min="1" value="1" style="width:72px;" />
       <button type="button" class="remove">Remove</button>
     `
     row.querySelector('.remove').addEventListener('click',()=>row.remove())
-    const sel = row.querySelector('select')
+    const typeSelect = row.querySelector('[name="type"]')
     const targetInput = row.querySelector('input[name="target"]')
-    // hide target by default for boolean
     targetInput.style.display = 'none'
-    sel.addEventListener('change', ()=>{
-      targetInput.style.display = sel.value === 'number' ? '' : 'none'
+    typeSelect.addEventListener('change', ()=>{
+      targetInput.style.display = typeSelect.value === 'number' ? '' : 'none'
     })
     goalsContainer.appendChild(row)
   })
@@ -92,11 +112,14 @@
     const rows = Array.from(goalsContainer.querySelectorAll('.goal-row'))
     const newGoals = rows.map(r=>({
       title: r.querySelector('[name=title]').value.trim(),
+      category: r.querySelector('[name=category]').value,
       type: r.querySelector('[name=type]').value,
       target: Number(r.querySelector('[name=target]').value)||1,
       progress: 0
     })).filter(g=>g.title)
     if(newGoals.length < MIN_GOALS) return alert('Please add at least 3 goals')
+    const missing = getMissingCategories(newGoals)
+    if(missing.length) return alert(`Please add at least one goal in each category: ${GOAL_CATEGORIES.join(', ')}`)
     weeks[thisWeek] = {goals:newGoals}
     saveWeeks(weeks)
     prompt.classList.add('hidden')
@@ -112,9 +135,13 @@
       const div = document.createElement('div')
       div.className='goal-item'
       const percent = computePercent(g)
+      const category = GOAL_CATEGORIES.includes(g.category) ? g.category : 'Work'
       div.innerHTML = `
         <div class="goal-meta">
-          <strong>${escapeHtml(g.title)}</strong>
+          <div class="goal-topline">
+            <strong>${escapeHtml(g.title)}</strong>
+            <span class="category-pill" data-category="${category}">${category}</span>
+          </div>
           <div style="color:var(--muted);font-size:13px">${g.type==='boolean'?'Yes/No':'Number target: '+g.target}</div>
         </div>
         <div class="goal-controls">
@@ -175,23 +202,27 @@
     })
   }
 
-  function showPromptIfSunday(){
-    const now = new Date()
-    if(now.getDay()===0){
-      // It's Sunday
-      // If we haven't created goals for this week, show prompt
-      if(!weeks[thisWeek] || !weeks[thisWeek].goals || weeks[thisWeek].goals.length===0){
-        prompt.classList.remove('hidden')
-      }
-    } else {
-      // not Sunday: show current week's data if exists
-      if(weeks[thisWeek] && weeks[thisWeek].goals && weeks[thisWeek].goals.length>0){
-        renderProgress()
-      } else {
-        // still show form to allow creating goals anytime
-        // leave hidden to avoid forcing prompt
-      }
+  function showGoalPromptIfNeeded(){
+    if(!weeks[thisWeek] || !weeks[thisWeek].goals || weeks[thisWeek].goals.length === 0){
+      prompt.classList.remove('hidden')
+      return
     }
+
+    prompt.classList.add('hidden')
+    renderProgress()
+  }
+
+  const splashScreen = document.getElementById('splashScreen')
+  if(splashScreen){
+    const dismissSplash = () => {
+      if(splashScreen.classList.contains('is-hidden')) return
+      splashScreen.classList.add('is-hidden')
+    }
+
+    splashScreen.addEventListener('click', dismissSplash)
+    splashScreen.addEventListener('touchstart', dismissSplash, { passive: true })
+    splashScreen.addEventListener('pointerdown', dismissSplash, { passive: true })
+    setTimeout(dismissSplash, 15000)
   }
 
   // register service worker
@@ -202,9 +233,8 @@
   // Startup
   ensureWeekExists(thisWeek)
   renderGoalsForm()
-  renderProgress()
   renderHistory()
-  showPromptIfSunday()
+  showGoalPromptIfNeeded()
 
   // utility: save on unload
   window.addEventListener('beforeunload',()=>saveWeeks(weeks))

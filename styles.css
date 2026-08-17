@@ -4,13 +4,17 @@
   --accent: #27ae60;
   --accent-strong: #1e8a46;
   --muted: #6b6b6b;
+  --work: #dfeafc;
+  --home: #dff9ee;
+  --play: #fef1d8;
 }
 *{box-sizing:border-box}
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:var(--bg);margin:0;color:#0b2b1a}
 # main layout
-.app{max-width:760px;margin:28px auto;padding:12px}
+.app{max-width:760px;margin:28px auto;padding:20px 18px}
 header h1{margin:0;color:var(--accent-strong)}
 .tag{color:var(--muted);margin:4px 0 16px}
+.goal-guidance{color:var(--muted);margin:0 0 12px;font-size:14px}
 .card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(10,20,10,0.06);margin-bottom:12px}
 .hidden{display:none}
 .app .goal-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
@@ -23,17 +27,30 @@ button[disabled]{opacity:.5}
 input[type=text],input[type=number],select{padding:8px;border-radius:8px;border:1px solid #ddd}
 .goal-item{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;border:1px dashed #e6f7ea;margin-bottom:8px}
 .goal-meta{flex:1;padding-right:8px}
+.goal-topline{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.category-pill{display:inline-flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#edf7ef;color:var(--accent-strong)}
+.category-pill[data-category="Home"]{background:var(--home);color:#1d5b43}
+.category-pill[data-category="Play"]{background:var(--play);color:#7a4d0a}
+.category-pill[data-category="Work"]{background:var(--work);color:#224d91}
 .medal{color:gold;font-weight:bold;font-size:1.2em;margin-left:8px}
 .controls{margin-top:8px}
 footer{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.splash-screen{position:fixed;inset:0;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;z-index:20;background:linear-gradient(135deg,#0d3f2a 0%,#114f39 35%,#1e6f4a 100%);opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
+.splash-screen.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.splash-card{max-width:460px;width:min(90vw,460px);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);padding:28px 24px;border-radius:16px;box-shadow:0 18px 40px rgba(0,0,0,0.18);text-align:center;animation:splashTextFade 2s ease-out both}
+.splash-kicker{margin:0 0 10px;color:rgba(255,255,255,0.8);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:12px}
+.splash-card h2{margin:0 0 12px;color:#ffffff}
+.splash-card p{margin:0;color:rgba(255,255,255,0.9);line-height:1.5}
+@keyframes splashTextFade{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 
 /* Responsive adjustments for mobile */
 canvas{max-width:100%!important;height:auto!important}
 @media (max-width:480px){
-  .app{margin:12px;padding:10px}
+  .app{margin:16px;padding:16px 14px}
   .app .goal-row{flex-direction:column;align-items:stretch}
   .app .form-row{flex-direction:column;align-items:stretch}
   .form-row button{width:100%}
   .goal-item{flex-direction:column;align-items:stretch}
   .goal-controls{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
 }
+
