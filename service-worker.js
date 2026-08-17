@@ -4,7 +4,9 @@ const ASSETS = [
   '/index.html',
   '/styles.css',
   '/app.js',
-  '/manifest.json'
+  '/manifest.json',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg'
 ]
 
 self.addEventListener('install', e=>{
@@ -19,7 +21,3 @@ self.addEventListener('fetch', e=>{
   e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))
 })
 
-self.addEventListener('notificationclick', function(event) {
-  event.notification.close();
-  event.waitUntil(clients.openWindow('/'));
-});

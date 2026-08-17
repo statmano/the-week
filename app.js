@@ -28,7 +28,6 @@
   const saveGoalsBtn = document.getElementById('saveGoalsBtn')
   const progressList = document.getElementById('progressList')
   const historyChart = document.getElementById('historyChart')
-  const notifyTest = document.getElementById('notifyTest')
 
   function ensureWeekExists(key){
     if(!weeks[key]){
@@ -52,7 +51,13 @@
         <button type="button" class="remove">Remove</button>
       `
       const sel = row.querySelector('select')
+      const targetInput = row.querySelector('input[name="target"]')
       sel.value = g.type
+      // hide target for boolean type
+      if(sel.value === 'boolean') targetInput.style.display = 'none'
+      sel.addEventListener('change', ()=>{
+        targetInput.style.display = sel.value === 'number' ? '' : 'none'
+      })
       row.querySelector('.remove').addEventListener('click',()=>{ row.remove() })
       goalsContainer.appendChild(row)
     }
@@ -72,6 +77,13 @@
       <button type="button" class="remove">Remove</button>
     `
     row.querySelector('.remove').addEventListener('click',()=>row.remove())
+    const sel = row.querySelector('select')
+    const targetInput = row.querySelector('input[name="target"]')
+    // hide target by default for boolean
+    targetInput.style.display = 'none'
+    sel.addEventListener('change', ()=>{
+      targetInput.style.display = sel.value === 'number' ? '' : 'none'
+    })
     goalsContainer.appendChild(row)
   })
 
@@ -163,35 +175,14 @@
     })
   }
 
-  // Notification helpers
-  async function ensureNotifications(){
-    if(!('Notification' in window)) return false
-    if(Notification.permission === 'granted') return true
-    if(Notification.permission !== 'denied'){
-      const perm = await Notification.requestPermission()
-      return perm === 'granted'
-    }
-    return false
-  }
-
   function showPromptIfSunday(){
     const now = new Date()
     if(now.getDay()===0){
       // It's Sunday
-      // If we haven't created goals for this week, show prompt and notify
+      // If we haven't created goals for this week, show prompt
       if(!weeks[thisWeek] || !weeks[thisWeek].goals || weeks[thisWeek].goals.length===0){
         prompt.classList.remove('hidden')
       }
-      // show notification if allowed
-      ensureNotifications().then(ok=>{
-        if(ok && navigator.serviceWorker && navigator.serviceWorker.controller){
-          navigator.serviceWorker.getRegistration().then(reg=>{
-            reg && reg.showNotification('The Week — set your weekly goals', {body:'Tap to add 3–5 small achievable goals for the week.'})
-          })
-        } else if(ok){
-          new Notification('The Week — set your weekly goals')
-        }
-      })
     } else {
       // not Sunday: show current week's data if exists
       if(weeks[thisWeek] && weeks[thisWeek].goals && weeks[thisWeek].goals.length>0){
@@ -202,15 +193,6 @@
       }
     }
   }
-
-  notifyTest.addEventListener('click',async ()=>{
-    const ok = await ensureNotifications()
-    if(!ok) return alert('Notifications not allowed')
-    if(navigator.serviceWorker && navigator.serviceWorker.getRegistration){
-      const reg = await navigator.serviceWorker.getRegistration()
-      if(reg) reg.showNotification('Test notification from The Week', {body:'This is a test.'})
-    } else new Notification('Test notification from The Week')
-  })
 
   // register service worker
   if('serviceWorker' in navigator){
