@@ -19,13 +19,3 @@ py -m http.server 8000
 The PWA registers a service worker. On Sundays the app will prompt you to add goals for the week.
 
 A simple goal setting and tracking app
-
-Icons
------
-
-Place your app icons in the `icons/` folder. By default the manifest looks for:
-
-- `icons/icon-192.svg`
-- `icons/icon-512.svg`
-
-Replace these files with your PNG or SVG assets (keeping the same filenames) and the app will use them.
