@@ -7,6 +7,5 @@
   "theme_color": "#27ae60",
   "icons": [
     {"src":"icons/week-icon.png","sizes":"192x192","type":"image/png"},
-    {"src":"icons/week-icon.png","sizes":"512x512","type":"image/png"}
   ]
 }
