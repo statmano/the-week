@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <title>The Week — Weekly Focus PWA</title>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <h1>The Week</h1>
+        <p class="tag">Pick 3–5 achievable goals each week. Small wins build momentum.</p>
+      </header>
+
+      <section id="prompt" class="card hidden">
+        <h2>This week's goals</h2>
+        <form id="goalsForm">
+          <div id="goalsContainer"></div>
+          <div class="form-row">
+            <button id="addGoalBtn" type="button">Add Goal</button>
+            <button id="saveGoalsBtn" type="submit">Save Goals</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="progress" class="card">
+        <h2>Progress</h2>
+        <div id="progressList"></div>
+      </section>
+
+      <section id="history" class="card">
+        <h2>Past Weeks</h2>
+        <canvas id="historyChart" width="400" height="120"></canvas>
+      </section>
+
+      <footer>
+        <small>Bright green theme • PWA • Offline-capable</small>
+        <div class="controls">
+          <button id="notifyTest">Test Notification</button>
+        </div>
+      </footer>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
